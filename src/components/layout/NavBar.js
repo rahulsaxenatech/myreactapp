@@ -20,11 +20,11 @@ const NavBar = ({ icon, title }) => {
           <i className={icon} />
           {title}
         </h1>
-        <ul class='nav justify-content-center'>
-          <li class='nav-item'>
+        <ul className='nav justify-content-center'>
+          <li className='nav-item'>
             <Link to='/'>Home</Link>
           </li>
-          <li class='nav-item'>
+          <li className='nav-item'>
             <Link to='/about'>About</Link>
           </li>
         </ul>

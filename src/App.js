@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './Mycss.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -13,13 +13,20 @@ import Alert from './components/layout/Alert';
 import About from './components/pages/About';
 import User from './users/User';
 
-class App extends Component {
-  state = {
-    users: [],
-    user: {},
-    loading: false,
-    alert: null
-  };
+const App = () => {
+  const [users, setUsers] = useState([]);
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlerts] = useState(null);
+
+  // for class component :
+  // state = {
+  //   users: [],
+  //   user: {},
+  //   loading: false,
+  //   alert: null
+  // };
+
   // USING .then syntax
 
   // componentDidMount() {
@@ -28,58 +35,77 @@ class App extends Component {
   //     .then(res => console.log(res.data));
   // }
 
-  // Asynch Await
-  async componentDidMount() {
-    this.setState({ loading: true });
+  useEffect(async () => {
+    setLoading(true);
     const res = await axios.get(
       `https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
     );
-    console.log(res);
-    this.setState({ users: res.data, loading: false });
-  }
+    // console.log(res);
+    setUsers(res.data);
+    setLoading(false);
+  }, []);
+
+  // Asynch Await
+  // async componentDidMount() {
+  //   this.setState({ loading: true });
+  //   const res = await axios.get(
+  //     `https://api.github.com/users?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
+  //   );
+  //   // console.log(res);
+  //   this.setState({ users: res.data, loading: false });
+  // }
 
   // Search User
-  searchUser = async text => {
+  const searchUser = async text => {
     // console.log({ text });
-    this.setState({ loading: true });
+    setLoading(true);
+    //this.setState({ loading: true });
     const res = await axios.get(
       `https://api.github.com/search/users?q=${text}&client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
     );
-    console.log(res);
-    this.setState({ users: res.data.items, loading: false });
+    // console.log(res);
+    setUsers(res.data.items);
+    setLoading(false);
+    //this.setState({ users: res.data.items, loading: false });
   };
 
   // Get Single User
-  getUser = async username => {
-    this.setState({ loading: true });
+  const getUser = async username => {
+    setLoading(true);
     const res = await axios.get(
       `https://api.github.com/users/${username}?client_id=${process.env.REACT_APP_GITHUB_CLIENT_ID}&client_secret=${process.env.REACT_APP_GITHUB_CLIENT_SECRET}`
     );
-    console.log(res);
-    this.setState({ user: res.data, loading: false });
+    // console.log(res);
+    setUser(res.data);
+    setLoading(false);
+    //this.setState({ user: res.data, loading: false });
   };
 
   //Clear User
-  clearUser = () => {
-    this.setState({ users: [], loading: false });
+  const clearUser = () => {
+    setUsers([]);
+    setLoading(false);
+    //  this.setState({ users: [], loading: false });
   };
 
-  setAlert = (msg, type) => {
-    this.setState({ alert: { msg, type } });
-    setTimeout(() => this.setState({ alert: null }), 5000);
+  const setAlert = (msg, type) => {
+    setAlerts({ msg, type });
+    // this.setState({ alert: { msg, type } });
+    setTimeout(() => setAlerts(null), 5000);
+    // setTimeout(() => this.setState({ alert: null }), 5000);
   };
 
-  render() {
-    // const name = 'Expression for String Constant';
-    // const innermethod = () => 'Inner Method';
-    const { users, user, alert, loading } = this.state;
-    return (
-      <Router>
-        {/* <Image className='w-25 p-3' src={logo} /> */}
+  // render() {
+  // const name = 'Expression for String Constant';
+  // const innermethod = () => 'Inner Method';
+  //const { users, user, alert, loading } = this.state;
+  return (
+    <Router>
+      {/* <Image className='w-25 p-3' src={logo} /> */}
 
-        {/* {this.myclassmethod()}
+      {/* {this.myclassmethod()}
         {name} | {innermethod()} */}
-        {/* <h1>Content of App Component</h1>
+      {/* <h1>Content of App Component</h1>
         <hr></hr>
         <Myheader />
         <hr></hr>
@@ -89,42 +115,37 @@ class App extends Component {
         <hr></hr>
         <Newapp />
         <hr></hr> */}
-        <NavBar />
-        <Alert alert={alert} />
-        <Switch>
-          <Route
-            exact
-            path='/'
-            render={props => (
-              <Fragment>
-                <Search
-                  userSearch={this.searchUser}
-                  clearUser={this.clearUser}
-                  showClear={users.length > 0 ? true : false}
-                  setAlert={this.setAlert}
-                />
-                <Users loading={loading} users={users} />
-              </Fragment>
-            )}
-          />
-          <Route exact path='/about' component={About} />
-          <Route
-            exact
-            path='/user/:login'
-            render={props => (
-              <User
-                {...props}
-                getUser={this.getUser}
-                user={user}
-                loading={loading}
+      <NavBar />
+      <Alert alert={alert} />
+      <Switch>
+        <Route
+          exact
+          path='/'
+          render={props => (
+            <Fragment>
+              <Search
+                userSearch={searchUser}
+                clearUser={clearUser}
+                showClear={users.length > 0 ? true : false}
+                setAlert={setAlert}
               />
-            )}
-          />
-        </Switch>
-      </Router>
-    );
-  }
-}
+              <Users loading={loading} users={users} />
+            </Fragment>
+          )}
+        />
+        <Route exact path='/about' component={About} />
+        <Route
+          exact
+          path='/user/:login'
+          render={props => (
+            <User {...props} getUser={getUser} user={user} loading={loading} />
+          )}
+        />
+      </Switch>
+    </Router>
+  );
+  // }
+};
 
 // function Myapp() {
 //   return <h1>function Component</h1>;
